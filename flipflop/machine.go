@@ -1,4 +1,4 @@
-package toggle
+package flipflop
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 type ChangeHandler func(ctx context.Context, idx uint, state bool)
 type SingleStateChangeHandler func(ctx context.Context, state bool)
 
-type FSM interface {
+type FlipFlop interface {
 	fmt.GoStringer
 	Open(ctx context.Context, conditions ...uint)
 	Close(ctx context.Context, conditions ...uint)
@@ -16,37 +16,37 @@ type FSM interface {
 	Run(ctx context.Context)
 }
 
-type machine struct {
+type flipFlop struct {
 	delegate      *delegate
 	defaultChange func(context.Context, uint, bool)
 	changeMap     map[uint]func(context.Context, bool)
 }
 
-var _ = FSM(&machine{})
+var _ = FlipFlop(&flipFlop{})
 
-type Option func(*machine)
+type Option func(*flipFlop)
 
 func WithDefaultChangeHandler(handler ChangeHandler) Option {
-	return func(m *machine) {
+	return func(m *flipFlop) {
 		m.defaultChange = handler
 	}
 }
 
 func WithSingleStateChangeHandler(handler SingleStateChangeHandler, condition uint) Option {
-	return func(m *machine) {
+	return func(m *flipFlop) {
 		m.changeMap[condition] = handler
 	}
 }
 
 func WithAllStatesClosed() Option {
-	return func(m *machine) {
+	return func(m *flipFlop) {
 		defer m.delegate.lock().unlock()
 		m.delegate.reg = registerWithAllClosed()
 	}
 }
 
-func NewMachine(opts ...Option) *machine {
-	m := machine{
+func NewMachine(opts ...Option) *flipFlop {
+	m := flipFlop{
 		delegate:      newDelegate(),
 		defaultChange: func(context.Context, uint, bool) {},
 		changeMap:     make(map[uint]func(context.Context, bool)),
@@ -59,8 +59,8 @@ func NewMachine(opts ...Option) *machine {
 	return &m
 }
 
-func (m *machine) Run(ctx context.Context) {
-	go func(ctx context.Context, m *machine) {
+func (ff *flipFlop) Run(ctx context.Context) {
+	go func(ctx context.Context, m *flipFlop) {
 		for {
 			select {
 			case <-ctx.Done():
@@ -73,21 +73,21 @@ func (m *machine) Run(ctx context.Context) {
 				go m.defaultChange(c.ctx, c.state, c.closed)
 			}
 		}
-	}(ctx, m)
+	}(ctx, ff)
 }
 
-func (m *machine) Close(ctx context.Context, conditions ...uint) {
-	m.delegate.close(ctx, conditions...)
+func (ff *flipFlop) Close(ctx context.Context, conditions ...uint) {
+	ff.delegate.close(ctx, conditions...)
 }
 
-func (m *machine) Open(ctx context.Context, conditions ...uint) {
-	m.delegate.open(ctx, conditions...)
+func (ff *flipFlop) Open(ctx context.Context, conditions ...uint) {
+	ff.delegate.open(ctx, conditions...)
 }
 
-func (m *machine) Toggle(ctx context.Context, conditions ...uint) {
-	m.delegate.toggle(ctx, conditions...)
+func (ff *flipFlop) Toggle(ctx context.Context, conditions ...uint) {
+	ff.delegate.toggle(ctx, conditions...)
 }
 
-func (m *machine) GoString() string {
-	return m.delegate.stringVal()
+func (ff *flipFlop) GoString() string {
+	return ff.delegate.stringVal()
 }

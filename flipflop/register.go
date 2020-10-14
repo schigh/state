@@ -1,4 +1,4 @@
-package toggle
+package flipflop
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ const (
 
 func offset(idx uint) (uint, uint) {
 	if idx > MAXREG {
-		panic(fmt.Sprintf("state: overflow - a single state machine can hold no more than %d indices", MAXREG))
+		panic(fmt.Sprintf("state: overflow - a single state flipFlop can hold no more than %d indices", MAXREG))
 	}
 
 	return idx / WORDSIZE, idx % WORDSIZE

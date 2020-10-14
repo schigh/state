@@ -1,4 +1,4 @@
-package toggle
+package flipflop
 
 import (
 	"context"
@@ -232,7 +232,7 @@ func TestDelegate(t *testing.T) {
 		wg.Wait()
 	})
 
-	t.Run("toggle", func(t *testing.T) {
+	t.Run("flipflop", func(t *testing.T) {
 		t.Parallel()
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -284,10 +284,10 @@ func TestDelegate(t *testing.T) {
 		expectOpened := []uint{2,3,4,5,11,12,13,14,19,20}
 
 		if !reflect.DeepEqual(expectClosed, cv) {
-			t.Fatalf("toggle: expected closed:\n%v\ngot:\n%v\n", expectClosed, cv)
+			t.Fatalf("flipflop: expected closed:\n%v\ngot:\n%v\n", expectClosed, cv)
 		}
 		if !reflect.DeepEqual(expectOpened, ov) {
-			t.Fatalf("toggle: expected opened:\n%v\ngot:\n%v\n", expectOpened, ov)
+			t.Fatalf("flipflop: expected opened:\n%v\ngot:\n%v\n", expectOpened, ov)
 		}
 	})
 }
@@ -518,7 +518,7 @@ func TestContextCancellation(t *testing.T) {
 			}
 		})
 	})
-	t.Run("toggle", func(t *testing.T) {
+	t.Run("flipflop", func(t *testing.T) {
 		t.Parallel()
 
 		t.Run("cancel", func(t *testing.T) {
