@@ -1,6 +1,5 @@
-HERE      = $(shell pwd -L)
 UNIT_PKGS = $(shell go list ./... | grep -v sandbox | paste -sd "," -)
-COVER_DIR = $(HERE)/.coverage
+COVER_DIR = $(CURDIR)/.coverage
 
 .PHONY: test
 test: $(COVER_DIR)

@@ -85,6 +85,20 @@ func (m *machine) SetStart(name string) error {
 	return nil
 }
 
+func (m *machine) Reset() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	starti := m.start.Load()
+	if starti == nil {
+		return errors.New("this machine has no start state")
+	}
+	start, _ := starti.(State)
+	m.curr.Store(start)
+
+	return nil
+}
+
 func (m *machine) SetEndStates(names  ...string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

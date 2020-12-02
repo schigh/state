@@ -22,7 +22,7 @@ type flipFlop struct {
 	changeMap     map[uint]func(context.Context, bool)
 }
 
-var _ = FlipFlop(&flipFlop{})
+var _ FlipFlop = (*flipFlop)(nil)
 
 type Option func(*flipFlop)
 
